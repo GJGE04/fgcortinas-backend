@@ -2,7 +2,7 @@
 
 const express = require('express');
 // const bcrypt = require('bcryptjs');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // Asegúrate de tener tu modelo de usuario

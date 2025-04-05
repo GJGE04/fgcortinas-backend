@@ -1,6 +1,6 @@
 // controllers/authController.js
 const User = require('../models/User');  // Asegúrate de importar el modelo User
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Función para verificar si existen roles de superadmin o admin
