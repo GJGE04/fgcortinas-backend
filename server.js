@@ -55,6 +55,10 @@ app.use((req, res, next) => {
     next();
   });  
 
+  app.get('/', (req, res) => {
+    res.send('¡La API está funcionando!');
+  });  
+
 console.log("Rutas de productos cargadas"); // Verificar que las rutas se cargan
 
 // Conexión a la base de datos  (MongoDB Atlas)
