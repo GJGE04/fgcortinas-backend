@@ -42,12 +42,17 @@ const getOldWork = async (req, res) => {
 // Actualizar un trabajo
 const updateOldWork = async (req, res) => {
   try {
-    const { tipo, estado, activo } = req.body;
+    const { cliente, tipo, estado, activo } = req.body;
     const oldtrabajoActualizado = await OldWork.findByIdAndUpdate(
       req.params.id,
-      { tipo, estado, activo, fechaUltimoEstado: new Date(), fechaCreacion: new Date() },
+      { cliente, tipo, estado, activo, fechaUltimoEstado: new Date(), fechaCreacion: new Date() },
       { new: true }
     );
+
+    if (!oldtrabajoActualizado) {
+      return res.status(404).json({ message: 'Trabajo antiguo no encontrado' });
+    }
+
     res.status(200).json(oldtrabajoActualizado);
   } catch (error) {
     console.error(error);

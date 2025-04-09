@@ -16,7 +16,7 @@ const createBudget = async (req, res) => {
       } = req.body;
 
       // Validaciones básicas de los campos requeridos
-      if (!work || !name || !client || !technician || !totalUYU || !totalUSD || !address) {
+      if (!work || !name || !client || !technician || totalUYU === undefined || totalUSD === undefined || !address) {
         return res.status(400).json({ message: 'Faltan campos requeridos. Por favor, asegúrese de enviar todos los datos obligatorios.' });
       }
   
@@ -90,6 +90,39 @@ const createBudget = async (req, res) => {
       res.status(500).json({ message: 'Error al crear el presupuesto', details: error.message });
     }
   };
+
+  // Función para enviar el correo con PDF
+const sendEmail = (pdfBuffer, budgetData) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // o el servicio de correo que uses
+    auth: {
+      user: 'your_email@gmail.com',
+      pass: 'your_password',
+    },
+  });
+
+  const mailOptions = {
+    from: 'your_email@gmail.com',
+    to: 'cliente_email@example.com',
+    subject: `Presupuesto ${budgetData.name}`,
+    text: `Adjunto te envío el presupuesto ${budgetData.name}`,
+    attachments: [
+      {
+        filename: `${budgetData.name}.pdf`,
+        content: pdfBuffer,
+        encoding: 'base64',
+      },
+    ],
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error al enviar el correo:', error);
+    } else {
+      console.log('Correo enviado:', info.response);
+    }
+  });
+};
 
   // **GET**: Obtener todos los presupuestos
 const getBudgets = async (req, res) => {
@@ -248,7 +281,7 @@ const deleteBudgetForId = async (req, res) => {
             console.log(budget); // Verifica si hay un presupuesto con ese id
             console.log(id); 
             if (!budget) {
-            return res.status(404).json({ message: 'Presupuesto no encontrado' });
+              return res.status(404).json({ message: 'Presupuesto no encontradoX' });
             }
     
             // Eliminar presupuesto usando deleteOne()
