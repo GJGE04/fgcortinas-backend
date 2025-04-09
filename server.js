@@ -28,7 +28,7 @@ const app = express(); // Inicializar express
 // Middlewares
 // app.use(cors());            // Esto permite todas las solicitudes de cualquier dominio
 app.use(cors({
-    origin: 'http://localhost:3000'  // La URL de tu frontend. Si se necesita restringir el acceso, configurar CORS para permitir solo el dominio de tu frontend:
+    origin: 'https://fg-cortinas-app.web.app'  // La URL de tu frontend. Si se necesita restringir el acceso, configurar CORS para permitir solo el dominio de tu frontend:
   }));
 
 app.use(bodyParser.json()); // Para leer JSON en las solicitudes
