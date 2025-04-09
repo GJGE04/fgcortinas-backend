@@ -27,9 +27,13 @@ dotenv.config(); // Cargar variables de entorno
 const app = express(); // Inicializar express
 // Middlewares
 // app.use(cors());            // Esto permite todas las solicitudes de cualquier dominio
+
+// Configurar CORS para permitir solicitudes de localhost:3000. Permitir solicitudes desde localhost:3000
 app.use(cors({
-    origin: 'https://fg-cortinas-app.web.app'  // La URL de tu frontend. Si se necesita restringir el acceso, configurar CORS para permitir solo el dominio de tu frontend:
-  }));
+    origin: ['http://localhost:3000', 'https://fg-cortinas-app.web.app'],  // Permite solicitudes desde estos orígenes. // La URL de tu frontend. Si se necesita restringir el acceso, configurar CORS para permitir solo el dominio de tu frontend:
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Permite estos métodos HTTP
+    allowedHeaders: ['Content-Type', 'Authorization'],  // Permite estos encabezados
+}));
 
 app.use(bodyParser.json()); // Para leer JSON en las solicitudes
 // app.use(express.json());  // Permite recibir JSON
