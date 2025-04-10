@@ -68,4 +68,19 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { checkRoles, registerUser, loginUser };
+const verifytoken = async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1]; // "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ message: "Token no enviado" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ valid: true, role: decoded.role });
+  } catch (err) {
+    return res.status(401).json({ valid: false, message: "Token inválido" });
+  }
+};
+
+module.exports = { checkRoles, registerUser, loginUser, verifytoken };
