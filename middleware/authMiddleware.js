@@ -34,6 +34,7 @@ const verifyAdmin = (req, res, next) => {
 const verifyTokenBearer = (req, res, next) => {
   // Obtener el token del encabezado Authorization
   const token = req.header('Authorization')?.replace('Bearer ', '');
+  // const token = req.headers.authorization && req.headers.authorization.split(' ')[1]; // Se toma el token después de "Bearer "
 
   if (!token) {
     return res.status(401).json({ message: 'Acceso denegado. No se encontró el token' });
@@ -42,6 +43,12 @@ const verifyTokenBearer = (req, res, next) => {
   try {
     // Verificar el token usando la clave secreta
     const decoded = jwt.verify(token, process.env.JWT_SECRET);    // Decodifica el token usando la clave secreta
+
+    // Verificar y decodificar el token
+   /* jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Token inválido o expirado" });
+      } */
 
     // Asignar la información decodificada al objeto 'user' de la solicitud
     req.user = decoded;                                           // Guardar la información del usuario en el objeto `req` (la solicitud)
@@ -76,10 +83,13 @@ const verifyToken = (req, res, next) => {
 
 // Middleware para verificar si el usuario es Admin o SuperAdmin
 const isAdminOrSuperAdmin = (req, res, next) => {
-  if (req.user.role !== 'Admin' && req.user.role !== 'Superadmin') {
-    return res.status(403).json({ message: 'Acceso denegado. Requiere rol de Admin para esta acción.' });
+  const userRole = req.user.role; // Asumiendo que 'role' está en el token decodificado
+
+  if (userRole === "Admin" || userRole === "Superadmin") {
+    next();  // Permitir la acción
+  } else {
+    return res.status(403).json({ message: "No tienes permiso para realizar esta acción." });
   }
-  next();
 };
 
 const isAdminOrSuperAdmin2 = (req, res, next) => {

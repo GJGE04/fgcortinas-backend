@@ -23,7 +23,7 @@ router.post('/', verifyTokenBearer, isAdminOrSuperAdmin, createProductType);    
 
 // Ruta para actualizar un tipo de producto por ID 
 // router.put('/:id', updateProductType);                                             // Sin middleware de autorización.
-router.put('/:id', verifyTokenBearer, isAdminOrSuperAdmin, updateProductType);              // Se requiere autorización (solo admin o superadmin)
+router.put('/:id', verifyTokenBearer, isAdminOrSuperAdmin, updateProductType);        // Se requiere autorización (solo admin o superadmin)
 // router.put('/:id', authorizeRole(['superadmin', 'admin']), updateProductType);     // otras variantes
 // router.put('/product-types/:id', isAdminOrSuperAdmin, updateProductType);          // otras variantes
 
