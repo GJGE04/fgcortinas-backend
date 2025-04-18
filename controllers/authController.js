@@ -127,6 +127,11 @@ const logoutUser = (req, res) => {
 const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   try {
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Ambos campos son obligatorios' });
+    }
+
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
     
@@ -176,7 +181,7 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-// Esta función verifica el token y cambia la contraseña:
+// Esta función verifica el token y cambia la contraseña:  (desde link de recuperacion x email)
 const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { newPassword } = req.body;
