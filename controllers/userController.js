@@ -54,7 +54,6 @@ const getUser = async (req, res) => {
   }
 };
 
-
 // Obtener un usuario por su ID
 const getUserForId = async (req, res) => {
   try {
@@ -109,7 +108,7 @@ const deleteUser = async (req, res) => {
 
     await User.deleteOne({ _id: userId });
 
-    res.json({ message: 'Usuario eliminado' });
+    res.status(200).json({ message: 'Usuario eliminado correctamente' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { authorizeRole } = require('../middleware/authMiddleware'); // Asegúrate de importar la función de autorización
+
+// Importar middlewares
+const { verifyToken } = require('../middlewares/authMiddleware');   
+const authorizeRoles = require('../middlewares/roleMiddleware');  
+
+// Importar los roles definidos
+const ROLES = require('../config/roles');
+
+// Middleware combinado para evitar repetir
+const adminEditorAccess = [verifyToken, authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR)];
+
+// Importar controladores
 const {
   createProduct,
   getProducts,
@@ -9,19 +20,15 @@ const {
   deleteProduct
 } = require('../controllers/productController');
 
-// Obtener todos los productos (accesible para admin y superadmin)
-router.get('/', authorizeRole(['Admin', 'Superadmin']), getProducts);
+// ──────────── Rutas ─────────────
 
-// Obtener un producto por ID (accesible para admin y superadmin)
-router.get('/:id', authorizeRole(['Admin', 'superadmin', 'guest']), getProductById);
+// Rutas públicas
+router.get('/', getProducts);           // Obtener todos los productos (accesible para todos)
+router.get('/:id', getProductById);     // Obtener un producto por ID (accesible para todos)
 
-// Crear un nuevo producto (solo para admin y superadmin)
-router.post('/', authorizeRole(['Admin', 'Superadmin']), createProduct);
-
-// Actualizar un producto (solo para admin y superadmin)
-router.put('/:id', authorizeRole(['Admin', 'superadmin']), updateProduct);
-
-// Eliminar un producto (solo para admin y superadmin)
-router.delete('/:id', authorizeRole(['Admin', 'superadmin']), deleteProduct);
+// Rutas protegidas
+router.post('/', adminEditorAccess, createProduct);           // Crear un nuevo producto (solo para admin y superadmin)
+router.put('/:id', adminEditorAccess, updateProduct);         // Actualizar un producto (solo para admin y superadmin)
+router.delete('/:id', adminEditorAccess, deleteProduct);      // Eliminar un producto (solo para admin y superadmin)
 
 module.exports = router;

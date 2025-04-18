@@ -1,22 +1,40 @@
+// backend/routes/work.js
 const express = require('express');
 const router = express.Router();
 
-// Importar las funciones del controlador y los middlewares
-const { createWork, getWork, updateWork, deleteWork, generatePDF, getWorkOptions } = require('../controllers/workController'); 
-const { verifyToken, verifyTokenBearer, isAdminOrSuperAdmin } = require('../middleware/authMiddleware');   
+// Importar middlewares
+const { verifyToken } = require('../middlewares/authMiddleware');
+const authorizeRoles = require('../middlewares/roleMiddleware');
+const ROLES = require('../config/roles');
 
-router.get('/', getWork);
+// Middleware combinado para Admin y Superadmin
+const tecnicoAccess = [verifyToken, authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR, ROLES.TECNICO)];
 
-router.get('/generatePDF', generatePDF);  
+// Importar controladores
+const {
+  createWork,
+  getWork,
+  updateWork,
+  deleteWork,
+  generatePDF,
+  getWorkOptions
+} = require('../controllers/workController');
 
-router.post('/', verifyTokenBearer, isAdminOrSuperAdmin, createWork);               
+// ──────────── Rutas ─────────────
 
-router.put('/:id', verifyTokenBearer, isAdminOrSuperAdmin, updateWork);             
+// Obtener todos los trabajos (público o protegido según lo definas)
+router.get('/', tecnicoAccess, getWork);
 
-router.delete('/:id', verifyTokenBearer, isAdminOrSuperAdmin, deleteWork);         
+// Generar PDF (puede requerir protección si es sensible)
+router.get('/generatePDF', tecnicoAccess, generatePDF);
 
-// Ruta para obtener las opciones de tipo y estado
-router.get('/work-options', getWorkOptions);
+// Obtener las opciones de tipo y estado de trabajo
+router.get('/work-options', tecnicoAccess, getWorkOptions);
+
+// Otras rutas protegidas 
+router.post('/', tecnicoAccess, createWork);
+router.put('/:id', tecnicoAccess, updateWork);
+router.delete('/:id', tecnicoAccess, deleteWork);
 
 // Ruta de prueba para verificar la conexión
 router.get('/test', async (req, res) => {

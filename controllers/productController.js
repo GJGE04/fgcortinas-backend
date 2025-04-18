@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-const { isAdminOrSuperAdmin } = require('../middleware/authMiddleware');
+const { isAdminOrSuperAdmin } = require('../middlewares/authMiddleware');
 
 // Crear un nuevo producto
 const createProduct = async (req, res) => {
