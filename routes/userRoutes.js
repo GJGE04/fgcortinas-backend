@@ -1,13 +1,79 @@
 // backend/routes/user.js
 const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const router = express.Router();
-// const jwt = require('jsonwebtoken');
-const { verifyAdmin, verifyTokenBearer, isAdminOrSuperAdmin } = require('../middleware/authMiddleware');    // Middleware para verificar autenticación
 
-// Importar las funciones del controlador y los middlewares
-const { createUser, getUser, getUserForId, updateUser, deleteUser } = require('../controllers/userController'); 
+// Importar middlewares
+const { verifyToken } = require('../middlewares/authMiddleware');       // Middleware para verificar autenticación
+const authorizeRoles = require('../middlewares/roleMiddleware');  
+const ROLES = require('../config/roles');
+
+// Middleware combinado para Admin y Superadmin
+const adminAccess = [verifyToken, authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN)];
+
+// Importar controladores
+const {
+  createUser,
+  getUser,
+  getUserForId,
+  updateUser,
+  deleteUser
+} = require('../controllers/userController');
+
+// ──────────── Rutas ─────────────
+
+ // Obtener todos los usuarios (solo admin y superadmin)
+router.get('/', adminAccess, getUser);
+
+// Obtener un usuario por su ID (solo admin y superadmin)
+router.get('/:id', adminAccess, getUserForId);
+
+// Crear un nuevo usuario (solo admin y superadmin)
+router.post('/', adminAccess, createUser);
+
+// Crear usuario alternativo (por si querés dejar el endpoint `/create-user`)
+router.post('/create-user', adminAccess, async (req, res) => {
+  const { email, password, role } = req.body;
+
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: 'Todos los campos son requeridos' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'El usuario ya existe' });
+    }
+
+    // Crear nuevo usuario
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: 'Usuario creado con éxito', user: newUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error en la creación del usuario' });
+  }
+});
+
+// Actualizar un usuario por ID (solo admin y superadmin)
+router.put('/:id', adminAccess, updateUser);
+
+// Eliminar un usuario por ID (solo admin y superadmin)
+router.delete('/:id', adminAccess, deleteUser);   
+
+module.exports = router;
+
+// Si el endpoint /create-user no es estrictamente necesario aparte del POST /, 
+// podés eliminarlo o dejarlo si querés una ruta explícita.
+
+
 /*
 // Ruta de autenticación (login)
 router.post('/login', async (req, res) => {
@@ -52,53 +118,9 @@ router.post('/login', async (req, res) => {
 });
 */
 
-// Endpoint para crear un usuario (solo accesible para superadmin y admin)
-router.post('/create-user', verifyTokenBearer, verifyAdmin, async (req, res) => {
-  
-  const { email, password, role } = req.body;
+             
 
-    if (!email || !password || !role) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos' });
-    }
-  
-  try {
-    
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'El usuario ya existe' });
-    }
-
-    // Crear nuevo usuario
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      role: role || 'user',  // Default to 'user' if no role provided
-    });
-
-    await newUser.save();
-
-    res.status(201).json({ message: 'Usuario creado con éxito', user: newUser });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error en la creación del usuario' });
-  }
-});
-
-// Obtener todos los usuarios
-router.get('/', getUser);
-
-// Obtener un usuario por su ID
-router.get('/:id', getUserForId);
-
-// Crear un nuevo usuario
-router.post('/', verifyTokenBearer, isAdminOrSuperAdmin, createUser);               
-
-// Editar un usuario por su ID
-router.put('/:id', verifyTokenBearer, isAdminOrSuperAdmin, updateUser);             
-
-// Eliminar un usuario por su ID
-router.delete('/:id', verifyTokenBearer, isAdminOrSuperAdmin, deleteUser);         
+      
 
 
-module.exports = router;
+

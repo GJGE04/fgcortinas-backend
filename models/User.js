@@ -1,7 +1,7 @@
 // models/User.js
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const ROLES = require('../config/roles');
 
 // Definir el esquema de User
 const userSchema = new mongoose.Schema({
@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['Superadmin', 'Admin', 'User', 'Editor' , 'Guest', , 'Technician'],  // Definir roles posibles. Puedes agregar más roles según sea necesario
-    default: 'Guest',
+    enum: Object.values(ROLES),
+    default: ROLES.GUEST,
   },
   fechaCreacion: {
     type: Date,
@@ -36,6 +36,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+
 }, {
   timestamps: true,
 });
@@ -60,6 +63,5 @@ userSchema.methods.comparePassword = async function (password) {
 
 // Crear el modelo de User basado en el esquema
 const User = mongoose.model('User', userSchema);
-
 
 module.exports = User;

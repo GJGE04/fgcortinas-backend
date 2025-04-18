@@ -1,19 +1,27 @@
 // routes/authRoutes.js
 
 const express = require('express');
-const { checkRoles, registerUser, loginUser, verifytoken  } = require('../controllers/authController');  // Asegúrate de que las funciones estén bien importadas
 const router = express.Router();
+const { checkRoles, register, login, logoutUser, changePassword} = require('../controllers/authController');  // Asegúrate de que las funciones estén bien importadas
+const { verifyToken } = require('../middlewares/authMiddleware');
+const { forgotPassword, resetPassword } = require('../controllers/authController');
+
+// Ruta para registrar un nuevo usuario
+router.post('/register', register);  // Aquí debes tener correctamente asociada la función registerUser
+
+// Ruta para el login
+router.post('/login', login);
+
+// Ruta para cerrar sesión (requiere autenticación)
+router.post('/logout', verifyToken, logoutUser);
+
+// Cambiar contraseña (requiere estar autenticado)
+router.put('/change-password', verifyToken, changePassword);
 
 // Ruta para verificar roles
 router.get('/check-roles', checkRoles);
 
-// Ruta para registrar un nuevo usuario
-router.post('/register', registerUser);  // Aquí debes tener correctamente asociada la función registerUser
-
-// Ruta para el login
-router.post('/login', loginUser);
-
-// Ruta para verificar token
-router.post('/verifytoken', verifytoken);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 module.exports = router;

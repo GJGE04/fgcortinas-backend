@@ -1,7 +1,31 @@
+// backend/controllers/oldworkController.js
+
 const OldWork = require('../models/OldWork');
 
-// Crear un trabajo
+// Obtener todos los trabajos anteriores
+const getOldWork = async (req, res) => {
+  try {
+    const oldWorks = await OldWork.find().populate('cliente', 'nombre').exec();   // Rellenar los datos de cliente. // Esto llena el campo cliente con el nombre;
+    res.status(200).json(oldWorks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los trabajos anteriores', error });
+  }
+};
+
+// Crear un nuevo trabajo anterior
 const createOldWork = async (req, res) => {
+  try {
+    const newOldWork = new OldWork(req.body);
+    await newOldWork.save();
+    res.status(201).json({ message: 'Trabajo anterior creado exitosamente', oldWork: newOldWork });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear el trabajo anterior', error });
+  }
+};
+
+// Crear un trabajo
+const createOldWork2 = async (req, res) => {
   try {
     const { cliente, tipo, estado, fechaCreacion, fechaUltimoEstado, activo } = req.body;
 
@@ -28,19 +52,21 @@ const createOldWork = async (req, res) => {
   }
 };
 
-// Obtener todos los trabajos
-const getOldWork = async (req, res) => {
+// Actualizar un trabajo anterior
+const updateOldWork = async (req, res) => {
   try {
-    const oldtrabajos = await OldWork.find().populate('cliente', 'nombre').exec();   // Rellenar los datos de cliente. // Esto llena el campo cliente con el nombre
-    res.status(200).json(oldtrabajos);
+    const updatedOldWork = await OldWork.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedOldWork) {
+      return res.status(404).json({ message: 'Trabajo anterior no encontrado' });
+    }
+    res.status(200).json({ message: 'Trabajo anterior actualizado', oldWork: updatedOldWork });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener los trabajos' });
+    res.status(500).json({ message: 'Error al actualizar el trabajo anterior', error });
   }
 };
 
 // Actualizar un trabajo
-const updateOldWork = async (req, res) => {
+const updateOldWork2 = async (req, res) => {
   try {
     const { cliente, tipo, estado, activo } = req.body;
     const oldtrabajoActualizado = await OldWork.findByIdAndUpdate(
@@ -60,20 +86,24 @@ const updateOldWork = async (req, res) => {
   }
 };
 
-// Eliminar un trabajo
+// Eliminar un trabajo anterior
 const deleteOldWork = async (req, res) => {
   try {
-    const oldtrabajoEliminado = await OldWork.findByIdAndDelete(req.params.id);
-    res.status(200).json(oldtrabajoEliminado);
+    const deletedOldWork = await OldWork.findByIdAndDelete(req.params.id);
+    if (!deletedOldWork) {
+      return res.status(404).json({ message: 'Trabajo anterior no encontrado' });
+    }
+    res.status(200).json({ message: 'Trabajo anterior eliminado' });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: 'Error al eliminar el trabajo' });
+    res.status(500).json({ message: 'Error al eliminar el trabajo anterior', error });
   }
 };
 
-// Generar PDF del trabajo
+// Generar PDF (simulación, deberías personalizar según tu lógica de PDF)
 const generatePDF = async (req, res) => {
   try {
+    // Aquí podrías generar un PDF con datos de OldWork y enviarlo como archivo
     const oldtrabajo = await OldWork.findById(req.params.id);
     if (!oldtrabajo) {
       return res.status(404).json({ message: 'Trabajo no encontrado' });
@@ -83,11 +113,13 @@ const generatePDF = async (req, res) => {
     res.status(200).json({ message: 'PDF generado correctamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al generar el PDF' });
+    res.status(500).json({ message: 'Error al generar el PDF', error });
   }
 };
 
-const getOldWorkOptions = (req, res) => {   
+// Obtener opciones (por ejemplo: tipos, estados, etc.)
+const getOldWorkOptions = (req, res) => {
+  try {
     const tipoOptions = [
       'Agenda de presupuesto',
       'Presupuesto Visita',
@@ -101,19 +133,20 @@ const getOldWorkOptions = (req, res) => {
       'En Proceso',
       'En Espera'
     ];
-  
     // Devolver las opciones como una respuesta JSON
-    res.json({
+    res.status(200).json({ 
       tipo: tipoOptions,
-      estado: estadoOptions
-    });
-  };
+      estado: estadoOptions });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener opciones', error });
+  }
+};
 
 module.exports = {
-    createOldWork,    
-    getOldWork,      
-    updateOldWork,  
-    deleteOldWork,  
-    generatePDF, 
-    getOldWorkOptions
-  };
+  getOldWork,
+  createOldWork,
+  updateOldWork,
+  deleteOldWork,
+  generatePDF,
+  getOldWorkOptions
+};

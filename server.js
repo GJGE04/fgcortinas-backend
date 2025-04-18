@@ -1,6 +1,5 @@
-// Este archivo será el punto de entrada para tu servidor Express.
-
 // backend/server.js
+// Este archivo será el punto de entrada para tu servidor Express.
 
 const express = require('express');
 const cors = require('cors');
@@ -13,7 +12,6 @@ const authRoutes = require('./routes/authRoutes');                      // Rutas
 const productTypeRoutes = require('./routes/productTypeRoutes');        // Rutas de tipos de productos
 const productRoutes = require('./routes/productRoutes');                // Importar las rutas de productos
 const clientRoutes = require('./routes/clientRoutes');
-// const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');    
 const workRoutes = require('./routes/workRoutes');
 const oldworkRoutes = require('./routes/oldworkRoutes');
