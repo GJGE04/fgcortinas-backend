@@ -154,7 +154,7 @@ const forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
     const token = crypto.randomBytes(20).toString('hex');
-    console.log(`Enlace de recuperación: http://localhost:5173/reset-password/${token}`);
+    // console.log(`Enlace de recuperación: http://localhost:5173/reset-password/${token}`);
 
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
