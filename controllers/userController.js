@@ -1,3 +1,4 @@
+const ROLES = require('../config/roles');
 const User = require('../models/User');
 
 // Crear un user
@@ -114,6 +115,27 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// Obtener todos los users (filtrado por rol si se pasa como parámetro)
+const getTecnicos = async (req, res) => {
+  try {
+    const role = ROLES.TECNICO;
+
+    // Si se pasó un rol en la consulta, filtramos por ese rol de manera insensible a mayúsculas/minúsculas
+    let tecnicos;
+    // Usamos el operador $regex para hacer una búsqueda insensible a mayúsculas y minúsculas
+    tecnicos = await User.find({ role: { $regex: new RegExp("^" + role + "$", "i") } });
+      
+    // Si no se encuentra ningún usuario con ese rol, devolvemos un 204
+    if (!tecnicos || tecnicos.length === 0) {
+      return res.status(404).json({ message: 'Técnicos no encontrados' });
+    }
+
+    res.status(200).json(tecnicos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
     createUser,    
@@ -121,4 +143,5 @@ module.exports = {
     getUserForId,    
     updateUser,  
     deleteUser,  
+    getTecnicos
   };

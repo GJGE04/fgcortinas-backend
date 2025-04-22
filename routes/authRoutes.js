@@ -24,4 +24,16 @@ router.get('/check-roles', checkRoles);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
 
+router.get('/validateToken', verifyToken, (req, res) => {
+    res.status(200).json({
+      message: 'Token válido y usuario activo',
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        role: req.user.role,
+      },
+      isValid: true
+    });
+  });  
+
 module.exports = router;

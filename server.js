@@ -19,6 +19,9 @@ const budgetRoutes = require('./routes/budgetRoutes'); // Importar las rutas de 
 
 // Rutas
 const adminRoutes = require('./routes/admin');      // revisar si se usa
+const logRoutes = require('./routes/logRoutes');
+
+const emailRoutes = require('./routes/email');
 
 dotenv.config(); // Cargar variables de entorno
 
@@ -33,7 +36,9 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],  // Permite estos encabezados
 }));
 
-app.use(bodyParser.json()); // Para leer JSON en las solicitudes
+// Middleware que parsea el JSON del body
+app.use(express.json({ limit: '20mb' })); // importante para manejar base64 grandes
+app.use(bodyParser.json()); // Para leer JSON en las solicitudes. // Aunque con express.json ya alcanza, igual lo dejas si querés
 // app.use(express.json());  // Permite recibir JSON
 
 // Rutas de autenticación
@@ -50,6 +55,9 @@ app.use('/api/oldworks', oldworkRoutes);
 app.use('/api', budgetRoutes); // Registrar las rutas de presupuesto
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/logs', logRoutes);
+// Ahora sí, las rutas que usan req.body
+app.use('/api', emailRoutes);
 
 // server.js
 app.use((req, res, next) => {

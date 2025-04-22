@@ -7,7 +7,8 @@ const router = express.Router();
 const { createProductType, getProductTypes, updateProductType, deleteProductType, searchProductTypes } = require('../controllers/productTypeController'); // Asegúrate de que el nombre del controlador sea el correcto
 // Importar middlewares
 const { verifyToken } = require('../middlewares/authMiddleware');   
-const authorizeRoles = require('../middlewares/roleMiddleware');  
+const { verifyRole } = require('../middlewares/roleMiddleware');
+
 // Importar los roles definidos
 const ROLES = require('../config/roles');
 
@@ -23,7 +24,7 @@ router.get('/search', searchProductTypes);
 router.post(
   '/',
   verifyToken,
-  authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
+  verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
   createProductType
 );
 
@@ -31,7 +32,7 @@ router.post(
 router.put(
   '/:id',
   verifyToken,
-  authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
+  verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
   updateProductType
 );
 
@@ -39,7 +40,7 @@ router.put(
 router.delete(
   '/:id',
   verifyToken,
-  authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
+  verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR),
   deleteProductType
 );
 

@@ -6,11 +6,12 @@ const User = require('../models/User');
 
 // Importar middlewares
 const { verifyToken } = require('../middlewares/authMiddleware');       // Middleware para verificar autenticación
-const authorizeRoles = require('../middlewares/roleMiddleware');  
+const { verifyRole } = require('../middlewares/roleMiddleware'); 
 const ROLES = require('../config/roles');
 
-// Middleware combinado para Admin y Superadmin
-const adminAccess = [verifyToken, authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN)];
+// Middleware combinado para Admin y Superadmin, etc.
+const adminAccess = [verifyToken, verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN)];
+const tecnicoAccess = [verifyToken, verifyRole(ROLES.SUPERADMIN, ROLES.ADMIN, ROLES.TECNICO)]; 
 
 // Importar controladores
 const {
@@ -18,7 +19,8 @@ const {
   getUser,
   getUserForId,
   updateUser,
-  deleteUser
+  deleteUser,
+  getTecnicos
 } = require('../controllers/userController');
 
 // ──────────── Rutas ─────────────
@@ -67,6 +69,9 @@ router.put('/:id', adminAccess, updateUser);
 
 // Eliminar un usuario por ID (solo admin y superadmin)
 router.delete('/:id', adminAccess, deleteUser);   
+
+ // Obtener todos los tecnicos (solo admin y superadmin y tecnicos)
+ router.get('/role/tecnicos', tecnicoAccess, getTecnicos);
 
 module.exports = router;
 

@@ -4,11 +4,11 @@ const router = express.Router();
 
 // Importar middlewares
 const { verifyToken } = require('../middlewares/authMiddleware');
-const authorizeRoles = require('../middlewares/roleMiddleware');
+const { verifyRole } = require('../middlewares/roleMiddleware');
 const ROLES = require('../config/roles');
 
 // Middleware combinado para Admin y Superadmin
-const tecnicoAccess = [verifyToken, authorizeRoles(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR, ROLES.TECNICO)];
+const tecnicoAccess = [verifyToken, verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR, ROLES.TECNICO)];
 
 // Importar controladores
 const {

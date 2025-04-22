@@ -5,23 +5,75 @@
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const AccessLog = require('../models/AccessLog');
 
 // Función para verificar el token JWT
 const verifyToken = async (req, res, next) => {
+  console.log('Entrando a verifyToken...');  // <-- DEBUG
+
   // Obtener el token del encabezado Authorization
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];   // Bearer TOKEN
-  if (!token) return res.status(401).json({ message: 'Token de autenticación no proporcionado' });
+  if (!token){
+    console.warn('[verifyToken] ❌ Token no proporcionado');
+    return res.status(401).json({ message: 'Token de autenticación no proporcionado' });
+  }
 
   try {
     // Verificar el token usando la clave secreta
     const decoded = jwt.verify(token, process.env.JWT_SECRET);    // Decodifica el token usando la clave secreta
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(401).json({ message: 'Usuario no encontrado' });
+
+    if (!user) {
+      console.warn('[verifyToken] ❌ Usuario no encontrado para el token');
+      await AccessLog.create({
+        motivo: 'Token válido, pero usuario no existe',
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      });
+      return res.status(401).json({ message: 'Usuario no encontrado' });
+    } 
+
+    if (!user.activo) {
+      console.warn(`[verifyToken] ⚠️ Usuario desactivado intentó acceder - username: ${user.username}, id: ${user._id}`);
+
+      await AccessLog.create({
+        userId: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        tipo: 'Acceso Denegado',
+        motivo: 'Usuario desactivado',
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      });
+
+      return res.status(403).json({ message: 'El usuario está desactivado. Acceso denegado.' });
+    }
+
+    console.log(`[verifyToken] ✅ Token válido para usuario: ${user.username}, rol: ${user.role}`);
+
+    await AccessLog.create({
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      tipo: 'Acceso Permitido',
+      motivo: 'Token válido y usuario activo',
+      ip: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+
     req.user = user;
     next();
   } catch (err) {
-    res.status(403).json({ message: 'Token inválido o expirado' });
+    console.error('[verifyToken] ❌ Token inválido o expirado:', err.message);
+    await AccessLog.create({
+      motivo: `Token inválido o expirado: ${err.message}`,
+      ip: req.ip,
+      userAgent: req.headers['user-agent']
+    });
+    return res.status(403).json({ message: 'Token inválido o expirado' });
   }
 };
 
@@ -37,7 +89,7 @@ const verifyAdminOrSuperAdmin = (req, res, next) => {
 };
 */
 
-// module.exports = { verifyToken, authorizeRoles, verifyAdminOrSuperAdmin };
+// module.exports = { verifyToken, verifyRole, verifyAdminOrSuperAdmin };
 module.exports = { verifyToken };
 
 /*
