@@ -67,7 +67,6 @@ if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
 }
 
 
-
 /*
 try {
     const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
