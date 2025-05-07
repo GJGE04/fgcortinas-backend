@@ -43,8 +43,10 @@ const auth = new google.auth.JWT(
 
 // version  v.3  para que funcione tanto en local como en producción (Render)
 
+const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
 let auth;
 
+/*
 if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
   // ✅ Modo producción: cargamos el JSON desde variable de entorno
   const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
@@ -64,7 +66,36 @@ if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     key.private_key,
     SCOPES
   );
+} */
+
+
+if (serviceAccountJson) {
+
+  // Parseamos el JSON
+  const serviceAccount = JSON.parse(serviceAccountJson);
+
+  // Solución importante para que funcione la clave privada
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+
+  // Usamos el servicio de autenticación
+  auth = new google.auth.JWT(
+    serviceAccount.client_email,
+    null,
+    serviceAccount.private_key,
+    SCOPES
+  );
+} else {
+  // Si no existe la variable de entorno, cargamos el archivo localmente
+  const key = require('../config/google-service-account.json');
+  auth = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    SCOPES
+  );
 }
+
+
 
 
 /*
