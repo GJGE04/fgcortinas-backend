@@ -24,30 +24,32 @@ const budgetSchema = new mongoose.Schema({
       },
       width: {
         type: Number,
-        required: true,
+        required: false,
       },
       length: {
         type: Number,
-        required: true,
+        required: false,
       },
       discount: {
         type: Number,
-        required: true,
+        required: false,
         default: 0,
       },
       subtotal: {
         type: Number,
-        required: true,
+        required: false, // ← ya no es obligatorio si lo calcula el backend
       },
     },
   ],
   totalUYU: {
     type: Number,
     required: true,
+    default: 0,
   },
   totalUSD: {
     type: Number,
     required: true,
+    default: 0,
   },
   client: {
     type: mongoose.Schema.Types.ObjectId,
@@ -71,7 +73,12 @@ const budgetSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+  estado: {
+    type: String,
+    enum: ['pendiente', 'aprobado', 'rechazado'],
+    default: 'pendiente'
+  }  
+}, { timestamps: true });
 
 const Budget = mongoose.model('Budget', budgetSchema);
 

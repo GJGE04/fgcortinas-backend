@@ -22,6 +22,7 @@ const adminRoutes = require('./routes/admin');      // revisar si se usa
 const logRoutes = require('./routes/logRoutes');
 
 const emailRoutes = require('./routes/email');
+const calendarRoutes = require('./routes/calendarRoutes');
 
 dotenv.config(); // Cargar variables de entorno
 
@@ -32,7 +33,7 @@ const app = express(); // Inicializar express
 // Configurar CORS para permitir solicitudes de localhost:3000. Permitir solicitudes desde localhost:3000
 app.use(cors({
     origin: ['http://localhost:3000', 'https://fg-cortinas-app.web.app'],  // Permite solicitudes desde estos orígenes. // La URL de tu frontend. Si se necesita restringir el acceso, configurar CORS para permitir solo el dominio de tu frontend:
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Permite estos métodos HTTP
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],  // Permite estos métodos HTTP
     allowedHeaders: ['Content-Type', 'Authorization'],  // Permite estos encabezados
 }));
 
@@ -58,6 +59,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/logs', logRoutes);
 // Ahora sí, las rutas que usan req.body
 app.use('/api', emailRoutes);
+
+app.use('/api/calendar', calendarRoutes);
 
 // server.js
 app.use((req, res, next) => {

@@ -1,0 +1,22 @@
+# node modules
+node_modules/
+.env
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+
+# Google Service Account JSON
+config/google-service-account.json
+
+# IDEs
+.vscode/
+.idea/
+
+# build
+dist/
+build/

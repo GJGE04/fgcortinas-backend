@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 // Importar middlewares
 const { verifyToken } = require('../middlewares/authMiddleware');
 const { verifyRole } = require('../middlewares/roleMiddleware');
+const validateNotEmptyBody = require('../middlewares/validateNotEmptyBody');
 
 // Importar los roles definidos
 const ROLES = require('../config/roles');
@@ -13,7 +14,7 @@ const ROLES = require('../config/roles');
 const tecnicoAccess = [verifyToken, verifyRole(ROLES.ADMIN, ROLES.SUPERADMIN, ROLES.EDITOR, ROLES.TECNICO)];
 
 // Importar controladores
-const { createBudget, getBudgets, getBudgetById, getBudgetsDetail, deleteBudgetForId } = require('../controllers/budgetController');
+const { createBudget, getBudgets, getAllBudgets, getBudgetById, getBudgetsDetail, deleteBudgetForId, updateBudget, updateBudgetStatus, updateBudgetPartial } = require('../controllers/budgetController');
 
 // Enviar email
 const { sendBudgetEmail } = require('../services/mailer');  
@@ -32,6 +33,9 @@ router.post('/budget', tecnicoAccess, createBudget);
 router.get('/budgets', tecnicoAccess, getBudgets);
 
 // Ruta para obtener todos los presupuestos
+router.get('/allbudgets', tecnicoAccess, getAllBudgets);  // obtener ademas info de clientes, tecnicos, productos y trabajo
+
+// Ruta para obtener todos los presupuestos
 router.get('/budgetsdetail', tecnicoAccess, getBudgetsDetail);
 
 // Ruta para obtener un presupuesto por ID
@@ -39,6 +43,9 @@ router.get('/budget/:id', tecnicoAccess, getBudgetById);
 
 // Eliminar un presupuesto por su ID
 router.delete('/budget/:id', tecnicoAccess, deleteBudgetForId);
+
+// Ruta para obtener un presupuesto por ID
+router.put('/budget/:id', tecnicoAccess, updateBudget);
 
 // pdf credo desde el bckend
 router.post('/send-budget', async (req, res) => {
@@ -170,5 +177,9 @@ router.post('/send-budget-backend', async (req, res) => {
     res.status(500).json({ message: '❌ Error al generar o enviar presupuesto', error: error.message });
   }
 });
+
+router.patch('/budget/:id/status', tecnicoAccess, updateBudgetStatus);
+
+router.patch('/budget/:id', tecnicoAccess, validateNotEmptyBody , updateBudgetPartial);
 
 module.exports = router;
