@@ -1,14 +1,72 @@
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
-// const key = require('../config/google-service-account.json');        // ruta relativa al archivo .json
-/*
-const serviceAccount = JSON.parse(
-    process.env.GOOGLE_SERVICE_ACCOUNT_JSON.replace(/\\n/g, '\n')
-  );           // cargamos desde la variable de entorno
-  */
 
-// const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+
+/* version local v.1
+const key = require('../config/google-service-account.json');        // ruta relativa al archivo .json
+const auth = new google.auth.JWT(
+    key.client_email,
+    // serviceAccount.client_email,
+    null,
+    key.private_key,
+    // serviceAccount.private_key,
+    SCOPES
+); */
+
+/* version variables de entorno v.2
+// 1. Tomamos el string de la variable de entorno
+const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+
+// 2. Limpiamos los caracteres escapados
+const cleaned = raw.replace(/\\"/g, '"').replace(/\\n/g, '\n');
+
+// 3. Parseamos a JSON
+const serviceAccountJson = JSON.parse(cleaned);
+
+// 4. Creamos el auth con JWT
+const auth = new google.auth.JWT(
+  serviceAccountJson.client_email,
+  null,
+  serviceAccountJson.private_key,
+  SCOPES
+); */
+/*
+const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+const auth = new google.auth.JWT(
+  serviceAccount.client_email,
+  null,
+  serviceAccount.private_key,
+  ['https://www.googleapis.com/auth/calendar']
+); */
+
+// version  v.3  para que funcione tanto en local como en producción (Render)
+
+let auth;
+
+if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+  // ✅ Modo producción: cargamos el JSON desde variable de entorno
+  const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+
+  auth = new google.auth.JWT(
+    serviceAccount.client_email,
+    null,
+    serviceAccount.private_key.replace(/\\n/g, '\n'), // 👈 Importante
+    SCOPES
+  );
+} else {
+  // ✅ Modo local: cargamos desde archivo
+  const key = require('../config/google-service-account.json');
+  auth = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    SCOPES
+  );
+}
+
+
 
 /*
 try {
@@ -17,16 +75,23 @@ try {
   } catch (err) {
     console.error('❌ Error al parsear GOOGLE_SERVICE_ACCOUNT_JSON:', err.message);
   }  */
-/*
-const auth = new google.auth.JWT(
-    // key.client_email,
-    serviceAccount.client_email,
-  null,
-  // key.private_key,
-  serviceAccount.private_key,
-  SCOPES
-); */
 
+
+// convertir un JSON en string escapado listo para usar en env
+// const fs = require('fs');
+/*
+const raw = fs.readFileSync('./config/google-service-account.json', 'utf-8');
+// const escaped = raw.replace(/\n/g, '\\n');
+const escaped = JSON.stringify(JSON.parse(raw));
+console.log("convertir un JSON en string escapado listo para usar en env...");
+console.log(escaped);
+console.log("FIN");
+// Guardar en archivo
+// fs.writeFileSync('./escaped-service-account.txt', escaped);
+fs.writeFileSync('./escaped-service-account.json', escaped);
+console.log("✅ JSON escapado guardado en 'escaped-service-account.txt'"); */
+
+/*
 let credentials;
 
 if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
@@ -43,7 +108,7 @@ if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     null,
     credentials.private_key,
     ['https://www.googleapis.com/auth/calendar']
-  );
+  );  */
 
 const calendar = google.calendar({ version: 'v3', auth });
 
@@ -173,7 +238,6 @@ const updateGoogleCalendarEvent = async (eventId, updatedData) => {
       throw error;
     }
   };
-  
 
 module.exports = {
   createGoogleCalendarEvent,
