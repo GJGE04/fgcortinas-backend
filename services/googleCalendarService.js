@@ -68,7 +68,6 @@ if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
   );
 } */
 
-
 if (serviceAccountJson) {
 
   // Parseamos el JSON
