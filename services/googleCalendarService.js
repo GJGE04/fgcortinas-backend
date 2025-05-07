@@ -1,15 +1,49 @@
 const { google } = require('googleapis');
 const path = require('path');
-const key = require('../config/google-service-account.json'); // ruta relativa al archivo .json
+const fs = require('fs');
+// const key = require('../config/google-service-account.json');        // ruta relativa al archivo .json
+/*
+const serviceAccount = JSON.parse(
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON.replace(/\\n/g, '\n')
+  );           // cargamos desde la variable de entorno
+  */
 
-const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+// const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
+/*
+try {
+    const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    console.log('✅ JSON de cuenta de servicio cargado correctamente');
+  } catch (err) {
+    console.error('❌ Error al parsear GOOGLE_SERVICE_ACCOUNT_JSON:', err.message);
+  }  */
+/*
 const auth = new google.auth.JWT(
-  key.client_email,
+    // key.client_email,
+    serviceAccount.client_email,
   null,
-  key.private_key,
+  // key.private_key,
+  serviceAccount.private_key,
   SCOPES
-);
+); */
+
+let credentials;
+
+if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    // Ejecutando en producción (el contenido del JSON está en una env var)
+    credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON.replace(/\\n/g, '\n'));
+  } else {
+    // Ejecutando localmente desde el archivo
+    const filePath = path.join(__dirname, '../config/google-service-account.json');
+    credentials = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  }
+  
+  const auth = new google.auth.JWT(
+    credentials.client_email,
+    null,
+    credentials.private_key,
+    ['https://www.googleapis.com/auth/calendar']
+  );
 
 const calendar = google.calendar({ version: 'v3', auth });
 
