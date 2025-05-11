@@ -3,6 +3,10 @@ const Product = require('../models/Product');
 
 // **POST**: Crear un nuevo presupuesto
 const createBudget = async (req, res) => {
+
+  // Mensajes de error más explícitos
+  if (!req.body.client) return res.status(400).json({ message: "Falta el ID del cliente." });
+  
   try {
     const {
       work,
