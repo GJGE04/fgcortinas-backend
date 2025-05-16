@@ -23,6 +23,7 @@ const logRoutes = require('./routes/logRoutes');
 
 const emailRoutes = require('./routes/email');
 const calendarRoutes = require('./routes/calendarRoutes');
+const citasRoutes = require('./routes/citasRoutes');
 
 dotenv.config(); // Cargar variables de entorno
 
@@ -61,6 +62,7 @@ app.use('/api/logs', logRoutes);
 app.use('/api', emailRoutes);
 
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/citas', citasRoutes);
 
 // server.js
 app.use((req, res, next) => {
