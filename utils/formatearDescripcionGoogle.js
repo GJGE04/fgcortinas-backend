@@ -24,4 +24,22 @@ const formatearDescripcionGoogle = async ({ direccion, clienteId, tecnicosIds, t
   }
 };
 
-module.exports = formatearDescripcionGoogle;
+const { formatearDescripcionDesdeCita } = require('./calendar');
+
+const formatearDescripcionConIds = async ({ direccion, clienteId, tecnicosIds = [], tipo }) => {
+  const cliente = clienteId ? await Cliente.findById(clienteId) : null;
+  const tecnicos = tecnicosIds.length ? await Tecnico.find({ _id: { $in: tecnicosIds } }) : [];
+
+  const citaFalsa = {
+    direccion,
+    tipo,
+    cliente,
+    tecnicos,
+  };
+
+  return formatearDescripcionDesdeCita(citaFalsa);
+};
+
+// module.exports = formatearDescripcionGoogle;
+
+module.exports = { formatearDescripcionGoogle, formatearDescripcionConIds };

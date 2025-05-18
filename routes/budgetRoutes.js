@@ -67,16 +67,25 @@ router.post('/send-budget', async (req, res) => {
 
 // pdf credo desde el frontend
 // Envío del PDF generado desde el frontend (base64 o file)
-router.post('/send-budget-email', upload.single('pdf'), async (req, res) => {
+router.post('/send-budget-email', upload.single('pdf'), async (req, res) => { 
+  
+    console.log('📩 Datos recibidos en el body:', req.body);
     try {
-      const { to } = req.body;
+      // const { to } = req.body;
+      const { to, bodyHtml, cliente } = req.body;
       const pdfBuffer = req.file?.buffer;
 
-      if (!to || !pdfBuffer) {
-        return res.status(400).json({ message: 'Faltan campos requeridos (email o PDF)' });
+      if (!to || !pdfBuffer || !to.includes('@')) {
+        return res.status(400).json({ message: 'Faltan campos requeridos (email o PDF) o email inválido' });
       }
   
-      const result = await sendBudgetEmail(to, pdfBuffer, req.file.originalname || 'Presupuesto_FGC.pdf');
+      // const result = await sendBudgetEmail(to, pdfBuffer, req.file.originalname || 'Presupuesto_FGC.pdf');
+      const result = await sendBudgetEmail(
+        to,
+        pdfBuffer,
+        req.file.originalname || 'Presupuesto_FGC.pdf',
+        bodyHtml, cliente
+      );      
 
       if (result.success) {
         return res.status(200).json({ message: '✅ Presupuesto enviado con éxito' });

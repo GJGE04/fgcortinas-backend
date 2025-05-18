@@ -54,7 +54,7 @@ const sendBudgetEmailV1 = async (to, pdfBuffer, fileName = 'presupuesto.pdf') =>
 
 // mailer.js ✅ ← Toda la lógica para enviar el correo
 // services/mailer.js   -   // ✅ Nueva función para enviar presupuesto con PDF adjunto
-async function sendBudgetEmail(to, pdfBuffer, filename = 'presupuesto.pdf') {
+async function sendBudgetEmail(to, pdfBuffer, filename = 'presupuesto.pdf', bodyHtml = '', clienteName = '') {
   try { /*
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -70,13 +70,20 @@ async function sendBudgetEmail(to, pdfBuffer, filename = 'presupuesto.pdf') {
       subject: 'Presupuesto FGC solicitado',
       // text: 'Adjunto presupuesto en formato PDF.',
       html: `
-        <h3>Hola,</h3>
+        <h3>Hola ${clienteName},</h3>
         <p>Adjunto encontrarás el presupuesto solicitado.</p>
+        
         <p>Gracias por confiar en FG Cortinas.</p>
       `,
+      /*  esto se mevió del html.
+      <hr>
+        <p>${bodyHtml || 'Gracias por confiar en FG Cortinas.'}</p>
+        
+        <p>Gracias por confiar en FG Cortinas.</p>
+        */
       attachments: [
         {
-          filename, // ✅ corregido
+          filename, // ✅ corregido    
           content: pdfBuffer,
           contentType: 'application/pdf',
         },
@@ -85,6 +92,7 @@ async function sendBudgetEmail(to, pdfBuffer, filename = 'presupuesto.pdf') {
 
     const info = await transporter.sendMail(mailOptions);
     console.log('📤 Correo enviado:', info.response);
+    console.log(`📤 Correo enviado a ${to} con asunto "${mailOptions.subject}"`);
 
     return { success: true, info };
   } catch (error) {
