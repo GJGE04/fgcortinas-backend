@@ -24,6 +24,7 @@ const logRoutes = require('./routes/logRoutes');
 const emailRoutes = require('./routes/email');
 const calendarRoutes = require('./routes/calendarRoutes');
 const citasRoutes = require('./routes/citasRoutes');
+const rolesRoutes = require('./routes/rolesRoutes');
 
 dotenv.config(); // Cargar variables de entorno
 
@@ -63,6 +64,7 @@ app.use('/api', emailRoutes);
 
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/citas', citasRoutes);
+app.use('/api/roles', rolesRoutes);
 
 // server.js
 app.use((req, res, next) => {

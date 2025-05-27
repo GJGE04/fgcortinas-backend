@@ -1,6 +1,8 @@
 // models/Trabajo.js
 
 const mongoose = require('mongoose');
+const WORKTYPE = require('../config/workType');
+const WORKSTATE = require('../config/workState');
 
 const workSchema = new mongoose.Schema({
   cliente: {
@@ -8,11 +10,12 @@ const workSchema = new mongoose.Schema({
     ref: 'Cliente', // Relación con el modelo Cliente
     required: true,
   },
-  tecnico: {
+  tecnicos: [{
     type: mongoose.Schema.Types.ObjectId, // Cambiado de "Schema.Types.ObjectId" a "mongoose.Schema.Types.ObjectId"
     ref: 'User', // Relación con el modelo User (técnico)
     required: true,
-  },
+  }],
+  /*
   direccion: {
     type: [String], // Dirección puede ser un array de strings
     required: true,
@@ -23,20 +26,21 @@ const workSchema = new mongoose.Schema({
     required: true,
     default: []
   },
+  */
   fechaCreacion: {
     type: Date,
     default: Date.now,
   },
   tipo: {
     type: String,
-    enum: ['Agenda de presupuesto', 'Presupuesto Visita', 'Presupuesto Online', 'Presupuesto', 'Trabajo', 'Garantía'],
+    enum: Object.values(WORKTYPE),
     required: true,
-    default: ''
+    default: WORKTYPE.PRESUPUESTO, 
   },
   estado: {
     type: String,
-    enum: ['Finalizado', 'Iniciado', 'En Proceso', 'En Espera'],
-    default: '',
+    enum: Object.values(WORKSTATE),
+    default: WORKSTATE.ENESPERA,
   },
   fechaComienzo: { type: Date, default: null },  // Valor por defecto
   fechaFinalizacion: { type: Date, default: null },  // Valor por defecto

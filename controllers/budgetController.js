@@ -6,6 +6,7 @@ const createBudget = async (req, res) => {
 
   // Mensajes de error más explícitos
   if (!req.body.client) return res.status(400).json({ message: "Falta el ID del cliente." });
+  console.log("🧪 Técnicos recibidos:", req.body.technician);
   
   try {
     const {
@@ -17,6 +18,11 @@ const createBudget = async (req, res) => {
       description,
       technician
     } = req.body;
+
+    // Validación explícita de técnicos
+    if (!Array.isArray(technician) || technician.length === 0) {
+      return res.status(400).json({ message: 'Debe seleccionar al menos un técnico.' });
+    }
 
     let totalUYU = 0;
     let totalUSD = 0;

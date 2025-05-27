@@ -64,11 +64,11 @@ const budgetSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  technician: {
+  technician: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Relación con el modelo User (Técnico)
     required: true,
-  },
+  }], 
   creationDate: {
     type: Date,
     default: Date.now,

@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 // Crear un user
 const createUser = async (req, res) => {
-    const { username, email, password, rol, activo } = req.body;
+    const { username, email, password, role, activo } = req.body;
     
     try {
       // Verificar si ya existe un usuario con el mismo email
@@ -16,16 +16,16 @@ const createUser = async (req, res) => {
         username,
         email,
         password, // La contraseña será encriptada automáticamente en el middleware
-        rol,
+        role,
         activo,
       });
   
       const savedUser = await user.save();
       res.status(201).json(savedUser);
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: 'Error al crear el trabajo: ' + error.message });
-  }
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: 'Error al crear el usuario: ' + error.message });
+    }
 };
 
 // Obtener todos los users (filtrado por rol si se pasa como parámetro)
@@ -69,24 +69,47 @@ const getUserForId = async (req, res) => {
 // Actualizar un trabajo
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const userId = req.params.id;
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
+    const { username, email, role, activo, password, ultimoAcceso } = req.body;
+
+    // Backend - Asegúrate de que el email esté en minúsculas
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    // Solo verificamos el email si está intentando cambiarlo
+    if (normalizedEmail && normalizedEmail !== user.email) {
+      const existingUser = await User.findOne({ email: normalizedEmail });
+      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ message: 'El email ya está registrado por otro usuario' });
+      }
+      user.email = normalizedEmail;
+    }
+
     // Actualizar los campos del usuario
-    user.username = req.body.username || user.username;
+  /*  user.username = req.body.username || user.username;
     user.email = req.body.email || user.email;
     user.role = req.body.role || user.role;
     user.activo = req.body.activo !== undefined ? req.body.activo : user.activo;
-    user.ultimoAcceso = req.body.ultimoAcceso || user.ultimoAcceso;
+    user.ultimoAcceso = req.body.ultimoAcceso || user.ultimoAcceso; */
 
-    if (req.body.password) {
+    // Actualizar otros campos
+    user.username = username || user.username;
+    user.role = role || user.role;
+    user.activo = activo !== undefined ? activo : user.activo;
+    user.ultimoAcceso = ultimoAcceso || user.ultimoAcceso;
+
+    if (password) {   // req.body.password
       // Si la contraseña se actualiza, la encriptamos nuevamente
-      user.password = req.body.password;
+      // user.password = req.body.password;
+      user.password = password; // será encriptada por el middleware
     }
 
     const updatedUser = await user.save();
     res.json(updatedUser);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -137,11 +160,26 @@ const getTecnicos = async (req, res) => {
   }
 };
 
+const checkEmail = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    if (user) {
+      return res.status(200).json({ exists: true });
+    } else {
+      return res.status(200).json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Error al verificar el email:', error);
+    res.status(500).json({ message: 'Error al verificar el email' });
+  }
+};
+
 module.exports = {
     createUser,    
     getUser,  
     getUserForId,    
     updateUser,  
     deleteUser,  
-    getTecnicos
+    getTecnicos,
+    checkEmail
   };

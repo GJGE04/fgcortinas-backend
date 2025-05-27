@@ -17,23 +17,38 @@ const {
   updateWork,
   deleteWork,
   generatePDF,
-  getWorkOptions
+  getWorkOptions,
+  getWorkOptionsKV,
+  getAllWorks
 } = require('../controllers/workController');
 
 // ──────────── Rutas ─────────────
 
-// Obtener todos los trabajos (público o protegido según lo definas)
-router.get('/', tecnicoAccess, getWork);
+// ✔ Primero las rutas específicas. 
 
-// Generar PDF (puede requerir protección si es sensible)
-router.get('/generatePDF', tecnicoAccess, generatePDF);
+// ✅ Obtener todos los trabajos (público o protegido según lo definas)
+router.get('/', tecnicoAccess, getAllWorks);
 
-// Obtener las opciones de tipo y estado de trabajo
+// ✅ Obtener las opciones de tipo y estado de trabajo (¡esta va antes que "/:id"!)
 router.get('/work-options', tecnicoAccess, getWorkOptions);
 
-// Otras rutas protegidas 
+// ✅ Obtener las opciones de tipo y estado de trabajo (versión key-value)
+router.get('/work-optionskv', tecnicoAccess, getWorkOptionsKV);
+
+// ✅ Generar PDF (puede requerir protección si es sensible)
+router.get('/generatePDF', tecnicoAccess, generatePDF);
+
+// ✔ Luego las rutas generales (por ID). // Otras rutas protegidas 
+// ✅ Trae uno por ID (esta debe ir después de las rutas específicas)
+router.get('/:id', tecnicoAccess, getWork);
+
+// ✅ Crear nuevo trabajo
 router.post('/', tecnicoAccess, createWork);
+
+// ✅ Actualizar trabajo
 router.put('/:id', tecnicoAccess, updateWork);
+
+// ✅ Eliminar trabajo
 router.delete('/:id', tecnicoAccess, deleteWork);
 
 // Ruta de prueba para verificar la conexión

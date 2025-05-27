@@ -20,7 +20,8 @@ const {
   getUserForId,
   updateUser,
   deleteUser,
-  getTecnicos
+  getTecnicos,
+  checkEmail
 } = require('../controllers/userController');
 
 // ──────────── Rutas ─────────────
@@ -70,8 +71,10 @@ router.put('/:id', adminAccess, updateUser);
 // Eliminar un usuario por ID (solo admin y superadmin)
 router.delete('/:id', adminAccess, deleteUser);   
 
- // Obtener todos los tecnicos (solo admin y superadmin y tecnicos)
- router.get('/role/tecnicos', tecnicoAccess, getTecnicos);
+// Obtener todos los tecnicos (solo admin y superadmin y tecnicos)
+router.get('/role/tecnicos', tecnicoAccess, getTecnicos);
+
+router.get('/check-email/:email', checkEmail);  // adminAccess, 
 
 module.exports = router;
 
